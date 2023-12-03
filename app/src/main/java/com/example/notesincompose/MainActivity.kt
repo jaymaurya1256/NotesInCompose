@@ -9,9 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -31,6 +29,7 @@ import com.example.notesincompose.ui.Screen
 import com.example.notesincompose.ui.theme.NotesInComposeTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -45,10 +44,13 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                     val viewModel: MainViewModel = viewModel()
-                    lifecycleScope.launch {
-                        notes = viewModel.getNotes(applicationContext)
-                    }
+                    val scope = rememberCoroutineScope()
                     LoadingScreen()
+                    LaunchedEffect(scope) {
+                        lifecycleScope.launch {
+                            notes = viewModel.getNotes(applicationContext)
+                        }
+                    }
                     notes?.let {
                         App(viewModel, it)
                         AddNote()
@@ -127,17 +129,17 @@ fun AddNote() {
         modifier = Modifier
             .height(5.dp)
             .width(5.dp)
-            .background(Color.Green) {
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_add_24),
-                    null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            }
-    )
+            .background(Color.Green)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.baseline_add_24),
+            null,
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
+        )
+    }
 }
 
 
