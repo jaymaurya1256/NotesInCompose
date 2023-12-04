@@ -1,6 +1,8 @@
 package com.example.notesincompose
 
+import android.content.ContentValues.TAG
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -33,6 +36,10 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        private const val TAG = "MainActivity"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var notes: List<Entity>? = null
@@ -49,11 +56,11 @@ class MainActivity : ComponentActivity() {
                     LaunchedEffect(scope) {
                         lifecycleScope.launch {
                             notes = viewModel.getNotes(applicationContext)
+                            Log.d(Companion.TAG, "onCreate: $notes")
                         }
                     }
                     notes?.let {
                         App(viewModel, it)
-                        AddNote()
                     }
                 }
             }
@@ -65,8 +72,8 @@ class MainActivity : ComponentActivity() {
 fun LoadingScreen() {
     Box(
         modifier = Modifier
-            .fillMaxSize()
             .padding(16.dp)
+            .size(250.dp)
     ) {
         // Content goes here
 
@@ -74,6 +81,7 @@ fun LoadingScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
+                .align(Alignment.Center)
         )
     }
 }
@@ -81,7 +89,17 @@ fun LoadingScreen() {
 @Composable
 fun App(viewModel: MainViewModel, notes: List<Entity>) {
     if (viewModel.screen.value == Screen.Home) {
-        Notes("Android", viewModel)
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(5.dp)
+        ) {
+            Notes("Android", viewModel)
+            Box(modifier = Modifier.align(Alignment.BottomEnd)
+                .padding(5.dp)
+            ) {
+                AddNote()
+            }
+        }
     } else {
         NoteDetail(viewModel.note)
     }
