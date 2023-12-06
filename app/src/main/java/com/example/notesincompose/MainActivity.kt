@@ -53,14 +53,8 @@ class MainActivity : ComponentActivity() {
                     val viewModel: MainViewModel = viewModel()
                     val scope = rememberCoroutineScope()
                     LoadingScreen()
-                    LaunchedEffect(scope) {
-                        lifecycleScope.launch {
-                            notes = viewModel.getNotes(applicationContext)
-                            Log.d(Companion.TAG, "onCreate: $notes")
-                        }
-                    }
-                    notes?.let {
-                        App(viewModel, it)
+                    if (viewModel.notes.value.value != null) {
+                        App(viewModel, viewModel.notes.value.value!!)
                     }
                 }
             }
@@ -94,7 +88,8 @@ fun App(viewModel: MainViewModel, notes: List<Entity>) {
             .padding(5.dp)
         ) {
             Notes("Android", viewModel)
-            Box(modifier = Modifier.align(Alignment.BottomEnd)
+            Box(modifier = Modifier
+                .align(Alignment.BottomEnd)
                 .padding(5.dp)
             ) {
                 AddNote()
